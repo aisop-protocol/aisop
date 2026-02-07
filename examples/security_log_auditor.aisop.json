@@ -1,0 +1,64 @@
+[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V3.1",
+      "id": "sec.auditor",
+      "name": "Security Log Auditor",
+      "version": "2.1.0 stable",
+      "description": "Audits auth logs and blocks malicious IPs.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell",
+        "file_io"
+      ],
+      "parameters": {
+        "log_file": {
+          "type": "string",
+          "description": "Path to the log file to audit."
+        }
+      },
+      "summary": "Scans logs.",
+      "system_prompt": "Execute blueprints.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute blueprints.main",
+      "blueprints": {
+        "main": "graph TD\n  read[Read Auth Log] --> parse[Parse IPs]\n  parse --> rate_limit{Over Rate Limit?}\n  rate_limit -->|Yes| block[Block IP]\n  rate_limit -->|No| ignore[Ignore]\n  block --> alert[Alert Security Team]\n  alert --> endNode((End))"
+      },
+      "functions": {
+        "read": {
+          "step1": "cat /var/log/auth.log"
+        },
+        "parse": {
+          "step1": {
+            "op": "sys.code",
+            "lang": "python",
+            "code": "extract_ips()"
+          }
+        },
+        "rate_limit": {
+          "step1": {
+            "op": "sys.if",
+            "condition": "count > 100"
+          }
+        },
+        "block": {
+          "step1": "iptables -A INPUT -s $IP -j DROP"
+        },
+        "ignore": {
+          "step1": "echo 'Traffic normal.'"
+        },
+        "alert": {
+          "step1": "echo '🚨 IP Blocked!'"
+        }
+      }
+    }
+  }
+]

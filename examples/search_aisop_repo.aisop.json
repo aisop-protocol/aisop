@@ -1,0 +1,133 @@
+[
+    {
+        "role": "system",
+        "content": {
+            "protocol": "AISOP V3.1",
+            "id": "demo.search_aisop_repo",
+            "version": "1.1.0 stable",
+            "name": "AISOP Repository Search & Report",
+            "description": "A protocol that uses web search to find all content about the AISOP repository and generate an analysis report. Includes error handling and validation.",
+            "verified_on": [
+                "Cursor",
+                "Gemini CLI",
+                "ChatGPT",
+                "Claude"
+            ],
+            "tools": [
+                "web_search",
+                "file_io"
+            ],
+            "parameters": {
+                "repo_url": {
+                    "type": "string",
+                    "description": "The GitHub repository URL to search for",
+                    "default": "https://github.com/aisop-protocol/aisop"
+                },
+                "repo_name": {
+                    "type": "string",
+                    "description": "Repository name for search queries",
+                    "default": "aisop-protocol/aisop"
+                },
+                "output_dir": {
+                    "type": "string",
+                    "description": "Directory to save the report (absolute path recommended)",
+                    "default": "./"
+                },
+                "output_file": {
+                    "type": "string",
+                    "description": "Filename for the analysis report",
+                    "default": "aisop_analysis_report.md"
+                }
+            },
+            "usage_hint": "Pass this file to any LLM/Agentic and ask it to execute. Example: 'Read and execute search_aisop_repo.aisop.json'",
+            "system_prompt": "You are a research agent. Follow the blueprint strictly to search and analyze the AISOP repository. Handle search failures gracefully."
+        }
+    },
+    {
+        "role": "user",
+        "content": {
+            "instruction": "Execute blueprints['main'] to search for AISOP repository content and generate an analysis report.",
+            "blueprints": {
+                "main": "graph TD; start[Start] --> search_repo[Search Repository]; search_repo --> check_repo{Found Results?}; check_repo -->|Yes| search_docs[Search Docs]; check_repo -->|No| retry_search[Retry with Alt Keywords]; retry_search --> search_docs; search_docs --> search_examples[Search Examples]; search_examples --> check_enough{Enough Data?}; check_enough -->|Yes| compile[Compile]; check_enough -->|No| search_more[Search More]; search_more --> compile; compile --> generate[Generate Report]; generate --> validate{Valid Report?}; validate -->|Yes| save[Save]; validate -->|No| regenerate[Regenerate]; regenerate --> save; save --> endNode((Done))"
+            },
+            "functions": {
+                "start": {
+                    "step1": "echo 'Starting AISOP Repository Search v1.1.0'",
+                    "step2": "echo 'Target: {{repo_url}}'",
+                    "step3": "echo 'Output: {{output_dir}}{{output_file}}'"
+                },
+                "search_repo": {
+                    "step1": "web_search('site:github.com {{repo_name}}')",
+                    "step2": "web_search('AISOP protocol AI Standard Operating Protocol')",
+                    "step3": "web_search('AISOP V3.1 blueprint functions agentic')"
+                },
+                "check_repo": {
+                    "step1": {
+                        "op": "sys.if",
+                        "condition": "search_results contain 'AISOP' or 'aisop-protocol'",
+                        "on_true": "proceed to search_docs",
+                        "on_false": "proceed to retry_search"
+                    }
+                },
+                "retry_search": {
+                    "step1": "web_search('AI agent protocol standard operating procedure github')",
+                    "step2": "web_search('agentic workflow SOP mermaid blueprint')"
+                },
+                "search_docs": {
+                    "step1": "web_search('AISOP SPEC.md specification')",
+                    "step2": "web_search('AISOP philosophy glass box transparent AI')",
+                    "step3": "web_search('AISOP feasibility self-evolution genetic programming')"
+                },
+                "search_examples": {
+                    "step1": "web_search('AISOP examples github analyzer deployment kubernetes')",
+                    "step2": "web_search('AISOP mermaid flowchart functions steps')",
+                    "step3": "web_search('AISOP fractal architecture modular agent')"
+                },
+                "check_enough": {
+                    "step1": {
+                        "op": "sys.if",
+                        "condition": "total search results >= 5 with relevant AISOP content",
+                        "on_true": "proceed to compile",
+                        "on_false": "proceed to search_more"
+                    }
+                },
+                "search_more": {
+                    "step1": "web_search('AISOP runtime cursor gemini CLI chatgpt claude')",
+                    "step2": "web_search('AISOP JSON protocol agent workflow automation')"
+                },
+                "compile": {
+                    "step1": "Organize results into: Overview, Specification, Architecture, Examples, Community",
+                    "step2": "Extract key features: Blueprints, Functions, Glass Box, Self-Evolution, Fractal",
+                    "step3": "Identify gaps: missing info, outdated content, contradictions",
+                    "step4": "Prioritize most authoritative and recent sources"
+                },
+                "generate": {
+                    "step1": "Create markdown with: Executive Summary (3 sentences max)",
+                    "step2": "Add Key Features table (5-7 rows)",
+                    "step3": "Add Architecture diagram or description",
+                    "step4": "Add Examples section with file references",
+                    "step5": "Add Recommendations for different audiences",
+                    "step6": "Add Search Execution Summary table"
+                },
+                "validate": {
+                    "step1": {
+                        "op": "sys.if",
+                        "condition": "report has all required sections AND word count > 200",
+                        "on_true": "proceed to save",
+                        "on_false": "proceed to regenerate"
+                    }
+                },
+                "regenerate": {
+                    "step1": "Identify missing sections from validation",
+                    "step2": "Add placeholder content with [TODO: needs more research]",
+                    "step3": "Proceed to save with partial report flag"
+                },
+                "save": {
+                    "step1": "Save report to {{output_dir}}{{output_file}}",
+                    "step2": "echo 'Report saved to {{output_dir}}{{output_file}}'",
+                    "step3": "echo 'AISOP Execution Complete: search_aisop_repo v1.1.0'"
+                }
+            }
+        }
+    }
+]

@@ -1,0 +1,170 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "AISOP Protocol v3.1 (Chat-Native)",
+    "description": "Schema for AI Standard Operating Protocol (AISOP) documents. Supports both Legacy Object and Modern Chat-Native Array formats.",
+    "definitions": {
+        "metadata": {
+            "type": "object",
+            "required": [
+                "protocol",
+                "id",
+                "version",
+                "summary",
+                "system_prompt"
+            ],
+            "properties": {
+                "protocol": {
+                    "type": "string",
+                    "const": "AISOP V3.1",
+                    "description": "AISOP Protocol Version"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+ (stable|test|dev)$",
+                    "description": "Semantic Version + Lifecycle Stage (e.g. '1.0.0 stable')"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Human-readable name of the AISOP."
+                },
+                "summary": {
+                    "type": "string",
+                    "description": "What this AISOP does."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Detailed description of the AISOP's purpose and logic."
+                },
+                "verified_on": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of Agentic Runtimes (e.g. Cursor, Gemini CLI) verifying this AISOP."
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of capabilities required (e.g. shell, python, websearch, file_io)."
+                },
+                "parameters": {
+                    "type": "object",
+                    "description": "Input parameters required by this AISOP (The Interface).",
+                    "patternProperties": {
+                        "^[a-zA-Z0-9_]+$": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "string",
+                                        "integer",
+                                        "boolean",
+                                        "array"
+                                    ]
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "default": {}
+                            },
+                            "patternProperties": {
+                                "^.*_prompt$": {
+                                    "type": "string",
+                                    "description": "Dynamic prompt instruction (e.g. 'agentic_prompt', 'search_prompt')."
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "description"
+                            ]
+                        }
+                    }
+                },
+                "system_prompt": {
+                    "type": "string",
+                    "description": "The required Shim Prompt to run this AISOP."
+                }
+            }
+        },
+        "blueprints": {
+            "type": "object",
+            "description": "A collection of Mermaid charts defining logic flows.",
+            "additionalProperties": {
+                "type": "string",
+                "description": "Mermaid graph definition."
+            }
+        },
+        "functions": {
+            "type": "object",
+            "description": "A registry of executable functions defined as linear step sequences.",
+            "additionalProperties": {
+                "type": "object"
+            }
+        }
+    },
+    "oneOf": [
+        {
+            "type": "object",
+            "properties": {
+                "aisop": {
+                    "$ref": "#/definitions/metadata"
+                },
+                "blueprints": {
+                    "$ref": "#/definitions/blueprints"
+                },
+                "functions": {
+                    "$ref": "#/definitions/functions"
+                }
+            },
+            "required": [
+                "aisop"
+            ]
+        },
+        {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "system",
+                            "user"
+                        ]
+                    },
+                    "content": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/definitions/metadata"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "blueprints": {
+                                        "$ref": "#/definitions/blueprints"
+                                    },
+                                    "functions": {
+                                        "$ref": "#/definitions/functions"
+                                    },
+                                    "instruction": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "role",
+                    "content"
+                ]
+            }
+        }
+    ]
+}

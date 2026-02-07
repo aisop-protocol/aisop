@@ -1,0 +1,60 @@
+[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V3.1",
+      "id": "complex.deployment",
+      "name": "Complex Deployment Flow",
+      "version": "2.1.0 stable",
+      "summary": "Demonstrates the 'Step-Map' sequence and explicit references.",
+      "description": "A complex example showcasing the full power of V3: Ordered Steps, Explicit References, and Fractal Blueprints.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell",
+        "git",
+        "file_io"
+      ],
+      "parameters": {
+        "log_level": {
+          "type": "string",
+          "default": "INFO"
+        }
+      },
+      "system_prompt": "Execute blueprints.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute blueprints['main']. use functions or blueprints as tools.",
+      "blueprints": {
+        "main": "graph TD\n  start --> checkout\n  checkout --> build_and_scan\n  build_and_scan --> deploy\n  deploy --> endNode",
+        "security_scan": "graph TD\n  init --> static --> dynamic"
+      },
+      "functions": {
+        "checkout": {
+          "step1": "git checkout main",
+          "step2": "git pull origin main"
+        },
+        "build_and_scan": {
+          "step1": "echo 'Starting Build & Scan Sequence...'",
+          "step2": "blueprints['security_scan']",
+          "step3": "npm install",
+          "step4": "functions['run_tests']",
+          "step5": "npm run build"
+        },
+        "run_tests": {
+          "step1": "npm run test:unit",
+          "step2": "echo 'Tests Passed'"
+        },
+        "deploy": {
+          "step1": "kubectl apply -f deployment.yaml",
+          "step2": "echo 'Deployment Complete'"
+        }
+      }
+    }
+  }
+]
