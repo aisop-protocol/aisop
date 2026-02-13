@@ -1,0 +1,67 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "complex.deployment",
+      "name": "Complex Deployment Flow",
+      "version": "2.1.0 stable",
+      "summary": "Demonstrates the 'Step-Map' sequence and explicit references.",
+      "description": "A complex example showcasing the full power of AISOP: Ordered Steps, Explicit References, and Fractal AISOP.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell",
+        "git",
+        "file_io"
+      ],
+      "parameters": {
+        "log_level": {
+          "type": "string",
+          "description": "Logging verbosity level (e.g. DEBUG, INFO, WARN, ERROR).",
+          "default": "INFO"
+        }
+      },
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop['main']. use functions or aisop as tools.",
+      "aisop": {
+        "main": "graph TD\n  start --> checkout\n  checkout --> build_and_scan\n  build_and_scan --> confirm_deploy[Human Confirm]\n  confirm_deploy --> deploy\n  deploy --> endNode((End))",
+        "security_scan": "graph TD\n  init --> static --> dynamic --> endNode((End))"
+      },
+      "functions": {
+        "checkout": {
+          "step1": "git checkout main",
+          "step2": "git pull origin main"
+        },
+        "build_and_scan": {
+          "step1": "echo 'Starting Build & Scan Sequence...'",
+          "step2": "aisop['security_scan']",
+          "step3": "npm install",
+          "step4": "functions['run_tests']",
+          "step5": "npm run build"
+        },
+        "run_tests": {
+          "step1": "npm run test:unit",
+          "step2": "echo 'Tests Passed'"
+        },
+        "confirm_deploy": {
+          "step1": {
+            "op": "sys.io.confirm",
+            "message": "Deploy to production via kubectl? This will apply deployment.yaml to the cluster."
+          }
+        },
+        "deploy": {
+          "step1": "kubectl apply -f deployment.yaml",
+          "step2": "echo 'Deployment Complete'"
+        }
+      }
+    }
+  }
+]

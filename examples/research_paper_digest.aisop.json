@@ -1,0 +1,56 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "research.digest",
+      "name": "Research Paper Digest",
+      "version": "2.1.0 stable",
+      "description": "Download, extract, and summarize Arxiv papers.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "web_dl",
+        "file_io",
+        "llm"
+      ],
+      "parameters": {
+        "paper_url": {
+          "type": "string",
+          "description": "URL of the paper to digest.",
+          "agentic_prompt": "Find the arXiv PDF URL for the paper mentioned by the user."
+        }
+      },
+      "summary": "Summarizes papers.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop.main",
+      "aisop": {
+        "main": "graph TD\n  dl[Download PDF] --> extract[Extract Text]\n  extract --> sum[LLM Summarize]\n  sum --> email[Email Digest]\n  email --> endNode((End))"
+      },
+      "functions": {
+        "dl": {
+          "step1": "wget http://arxiv.org/pdf/1234.pdf"
+        },
+        "extract": {
+          "step1": "pdftotext 1234.pdf"
+        },
+        "sum": {
+          "step1": {
+            "op": "sys.llm",
+            "prompt": "Summarize this paper..."
+          }
+        },
+        "email": {
+          "step1": "echo 'Email sent.'"
+        }
+      }
+    }
+  }
+]

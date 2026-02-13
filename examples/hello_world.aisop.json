@@ -1,0 +1,45 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "demo.hello_world",
+      "version": "2.1.0 stable",
+      "name": "Hello AISOP",
+      "description": "A simple Hello World demonstration.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell"
+      ],
+      "parameters": {
+        "name": {
+          "type": "string",
+          "description": "Who to say hello to (optional).",
+          "default": "World"
+        }
+      },
+      "summary": "A simple Hello World example.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop['main'].",
+      "aisop": {
+        "main": "graph TD\n  h[Print Hello] --> w[Print World]\n  w --> endNode((End))"
+      },
+      "functions": {
+        "h": {
+          "step1": "echo Hello"
+        },
+        "w": {
+          "step1": "echo World"
+        }
+      }
+    }
+  }
+]

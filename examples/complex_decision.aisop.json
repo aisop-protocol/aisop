@@ -1,0 +1,67 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "demo.complex_decision",
+      "name": "Complex Decision Logic",
+      "version": "2.1.0 stable",
+      "description": "Demonstrates multi-branch logic flow.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell"
+      ],
+      "parameters": {
+        "analysis_mode": {
+          "type": "string",
+          "enum": [
+            "fast",
+            "deep"
+          ],
+          "default": "fast",
+          "description": "Mode of decision analysis."
+        }
+      },
+      "summary": "Multi-branch logic.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop.main",
+      "aisop": {
+        "main": "graph TD\n  start[Input Data] --> d1{Value > 50?}\n  d1 -->|Yes| d2{Value > 80?}\n  d1 -->|No| low[Process Low]\n  d2 -->|Yes| high[Process High]\n  d2 -->|No| med[Process Medium]\n  low --> endNode((End))\n  med --> endNode\n  high --> endNode"
+      },
+      "functions": {
+        "start": {
+          "step1": "echo 85"
+        },
+        "d1": {
+          "step1": {
+            "op": "sys.if",
+            "condition": "val > 50"
+          }
+        },
+        "d2": {
+          "step1": {
+            "op": "sys.if",
+            "condition": "val > 80"
+          }
+        },
+        "low": {
+          "step1": "echo 'Value is Low'"
+        },
+        "med": {
+          "step1": "echo 'Value is Medium'"
+        },
+        "high": {
+          "step1": "echo 'Value is High'"
+        }
+      }
+    }
+  }
+]

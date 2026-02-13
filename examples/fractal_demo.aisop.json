@@ -1,0 +1,64 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "demo.fractal",
+      "version": "3.2.0 stable",
+      "name": "Fractal Logic Demo",
+      "description": "Demonstrates the Fractal Architecture.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell"
+      ],
+      "parameters": {
+        "recursion_limit": {
+          "type": "integer",
+          "default": 3,
+          "description": "Maximum depth of fractal execution."
+        }
+      },
+      "summary": "Demonstrates the AISOP Structure: Metadata -> AISOP -> Functions.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop['main'].",
+      "aisop": {
+        "main": "graph TD\n  start --> check_sys\n  check_sys -->|ok| sub_calc\n  check_sys -->|fail| alert\n  sub_calc --> endNode((End))\n  alert --> endNode",
+        "sub_calc": "graph TD\n  calc_start[Start Calc] --> do_math\n  do_math --> verify\n  verify -->|ok| finish\n  verify -->|retry| do_math\n  finish --> endNode((End))"
+      },
+      "functions": {
+        "check_sys": {
+          "step1": "echo System OK"
+        },
+        "alert": {
+          "step1": "echo '🚨 System Failure!'"
+        },
+        "do_math": {
+          "step1": {
+            "op": "sys.llm",
+            "prompt": "Calculate 5 * 5"
+          }
+        },
+        "verify": {
+          "step1": {
+            "op": "sys.if",
+            "expr": "result == 25"
+          }
+        },
+        "finish": {
+          "step1": "echo 'Calculation Complete!'"
+        },
+        "sub_calc": {
+          "step1": "aisop['sub_calc']"
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,57 @@
+﻿[
+    {
+        "role": "system",
+        "content": {
+            "protocol": "AISOP V1.0.0",
+            "id": "demo.simple_reader",
+            "version": "1.0.0 stable",
+            "name": "Simple Reader & Analyzer",
+            "description": "A minimal example that reads a text file and performs basic analysis.",
+            "verified_on": [
+                "Cursor",
+                "Gemini CLI"
+            ],
+            "tools": [
+                "file_io",
+                "shell"
+            ],
+            "parameters": {
+                "target_file": {
+                    "type": "string",
+                    "description": "Path to the file to analyze",
+                    "default": "README.md"
+                }
+            },
+            "summary": "Reads a text file and performs word count analysis.",
+            "system_prompt": "You are a text analysis agent. Execute aisop.main strictly."
+        }
+    },
+    {
+        "role": "user",
+        "content": {
+            "instruction": "Execute aisop['main'] to analyze the target file.",
+            "aisop": {
+                "main": "graph TD; start[Start] --> read[Read File]; read --> check{Is Empty?}; check -->|Yes| error[Report Empty]; check -->|No| analyze[Count Words]; analyze --> summary[Generate Summary]; error --> endNode((End)); summary --> endNode",
+                "sub_analysis": "graph TD; step1 --> step2 --> endNode((End))"
+            },
+            "functions": {
+                "start": {
+                    "step1": "echo 'Starting Analysis on {target_file}'"
+                },
+                "read": {
+                    "step1": "cat {target_file}"
+                },
+                "error": {
+                    "step1": "echo 'Error: File is empty or missing!'"
+                },
+                "analyze": {
+                    "step1": "wc -w {target_file}",
+                    "step2": "grep -o 'AISOP' {target_file} | wc -l"
+                },
+                "summary": {
+                    "step1": "echo 'Analysis Complete. See counts above.'"
+                }
+            }
+        }
+    }
+]

@@ -1,0 +1,75 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "skill.github_analyzer",
+      "name": "GitHub Repo Analyst",
+      "version": "1.0.0 stable",
+      "description": "Clones a repo, analyzes structure, reads README, and generates a technical summary.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell",
+        "git",
+        "file_io",
+        "llm"
+      ],
+      "parameters": {
+        "repo_url": {
+          "type": "string",
+          "description": "The URL of the GitHub repository to analyze.",
+          "agentic_prompt": "Extract the GitHub repository URL from the user's request."
+        }
+      },
+      "summary": "Deep analysis of a GitHub repository.",
+      "system_prompt": "You are an expert Code Auditor. Execute aisop.main to analyze the target repository."
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Analyze the repository at {env.REPO_URL}.",
+      "aisop": {
+        "main": "graph TD\n  start[Clone Repo] --> list[List Files]\n  list --> check{Has 'src' dir?}\n  check -->|Yes| analyze_src[Analyze Source Actions]\n  check -->|No| analyze_root[Analyze Root Files]\n  analyze_src --> read_readme[Read README]\n  analyze_root --> read_readme\n  read_readme --> summarize[Generate Summary Report]\n  summarize --> endNode((End))"
+      },
+      "functions": {
+        "start": {
+          "step1": "git clone {env.REPO_URL} workspace/target_repo",
+          "step2": "echo 'Cloned {env.REPO_URL} to workspace/target_repo'"
+        },
+        "list": {
+          "step1": "ls -R workspace/target_repo > workspace/file_structure.txt",
+          "step2": "cat workspace/file_structure.txt"
+        },
+        "check": {
+          "step1": {
+            "op": "sys.if",
+            "condition": "return os.path.isdir('workspace/target_repo/src')"
+          }
+        },
+        "analyze_src": {
+          "step1": "grep -r 'class ' workspace/target_repo/src | head -n 20 > workspace/structure_hint.txt",
+          "step2": "echo 'Detected Source Code Structure (Classes/Components)...'"
+        },
+        "analyze_root": {
+          "step1": "ls -l workspace/target_repo/*.py workspace/target_repo/*.js > workspace/structure_hint.txt",
+          "step2": "echo 'Detected Script/Flat Structure...'"
+        },
+        "read_readme": {
+          "step1": "cat workspace/target_repo/README.md > workspace/readme_content.md"
+        },
+        "summarize": {
+          "step1": {
+            "op": "sys.llm",
+            "prompt": "Based on the file structure in `workspace/file_structure.txt` and the README in `workspace/readme_content.md`, write a comprehensive technical summary of this project. Focus on architecture and tech stack.",
+            "output_file": "workspace/summary.md"
+          },
+          "step2": "cat workspace/summary.md"
+        }
+      }
+    }
+  }
+]

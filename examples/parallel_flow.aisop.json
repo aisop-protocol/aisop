@@ -1,0 +1,50 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "demo.parallel",
+      "name": "Parallel Execution Demo",
+      "version": "2.1.0 stable",
+      "description": "Demonstrates parallel execution of tasks.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell"
+      ],
+      "parameters": {
+        "batch_id": {
+          "type": "string",
+          "description": "ID of the processing batch."
+        }
+      },
+      "summary": "Parallel Execution.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop.main",
+      "aisop": {
+        "main": "graph TD\n  start[Start] --> taskA[Task A]\n  start --> taskB[Task B]\n  taskA --> sync[Sync/Join]\n  taskB --> sync\n  sync --> endNode((End))"
+      },
+      "functions": {
+        "start": {
+          "step1": "echo 'Starting...'"
+        },
+        "taskA": {
+          "step1": "echo Task A done"
+        },
+        "taskB": {
+          "step1": "echo Task B done"
+        },
+        "sync": {
+          "step1": "echo 'Both tasks finished.'"
+        }
+      }
+    }
+  }
+]

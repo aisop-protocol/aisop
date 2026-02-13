@@ -1,0 +1,70 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "sec.auditor",
+      "name": "Security Log Auditor",
+      "version": "2.1.0 stable",
+      "description": "Audits auth logs and blocks malicious IPs.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell",
+        "file_io"
+      ],
+      "parameters": {
+        "log_file": {
+          "type": "string",
+          "description": "Path to the log file to audit."
+        }
+      },
+      "summary": "Scans logs.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop.main",
+      "aisop": {
+        "main": "graph TD\n  read[Read Auth Log] --> parse[Parse IPs]\n  parse --> rate_limit{Over Rate Limit?}\n  rate_limit -->|Yes| confirm_block[Human Confirm]\n  confirm_block --> block[Block IP]\n  rate_limit -->|No| ignore[Ignore]\n  block --> alert[Alert Security Team]\n  alert --> endNode((End))\n  ignore --> endNode"
+      },
+      "functions": {
+        "read": {
+          "step1": "cat /var/log/auth.log"
+        },
+        "parse": {
+          "step1": {
+            "op": "sys.code",
+            "lang": "python",
+            "code": "extract_ips()"
+          }
+        },
+        "rate_limit": {
+          "step1": {
+            "op": "sys.if",
+            "condition": "count > 100"
+          }
+        },
+        "confirm_block": {
+          "step1": {
+            "op": "sys.io.confirm",
+            "message": "Block IP $IP via iptables? This action will deny all traffic from this IP."
+          }
+        },
+        "block": {
+          "step1": "iptables -A INPUT -s $IP -j DROP"
+        },
+        "ignore": {
+          "step1": "echo 'Traffic normal.'"
+        },
+        "alert": {
+          "step1": "echo '🚨 IP Blocked!'"
+        }
+      }
+    }
+  }
+]

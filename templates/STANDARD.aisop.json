@@ -1,0 +1,58 @@
+[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "your.domain.project.task",
+      "version": "1.0.0 stable",
+      "name": "Standard AISOP Template",
+      "description": "A detailed explanation of what this AISOP does, its context, and its goals.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell",
+        "file_io"
+      ],
+      "parameters": {
+        "input_variable": {
+          "type": "string",
+          "description": "Description of the input variable."
+        }
+      },
+      "summary": "Short description of what this AISOP does.",
+      "system_prompt": "# Role: AISOP Virtual Runtime\nExecute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop['main'].",
+      "aisop": {
+        "main": "graph TD\n  start[Start Node] --> check{Decision?}\n  check -->|Yes| sub_task[Call Sub-Graph]\n  check -->|No| atomic_tool[Call Function]\n  sub_task --> endNode((End))\n  atomic_tool --> endNode",
+        "sub_task": "graph TD\n  sub_start --> sub_end --> endNode((End))"
+      },
+      "functions": {
+        "simple_tool": {
+          "step1": "echo 'Hello World'"
+        },
+        "multi_step_tool": {
+          "step1": "echo 'Starting...'",
+          "step2": "aisop['sub_task']",
+          "step3": "functions['simple_tool']",
+          "step4": "echo 'Finished'"
+        },
+        "llm_tool": {
+          "step1": {
+            "op": "sys.llm",
+            "prompt": "Analyze this..."
+          }
+        },
+        "sub_task": {
+          "step1": "aisop['sub_task']"
+        }
+      }
+    }
+  }
+]

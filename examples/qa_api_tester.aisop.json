@@ -1,0 +1,61 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "qa.api_tester",
+      "version": "2.1.0 stable",
+      "name": "API Latency Watchdog",
+      "description": "Pings API and diagnoses latency issues using LLM.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell",
+        "llm",
+        "file_io"
+      ],
+      "parameters": {
+        "api_endpoint": {
+          "type": "string",
+          "description": "The base URL of the API to test."
+        }
+      },
+      "summary": "Pings an API, diagnoses slowness.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop.main",
+      "aisop": {
+        "main": "graph TD\n  ping[Ping API] --> check{Check SLA}\n  check -->|OK| pass[Test Passed]\n  check -->|Slow| diag[LLM Diagnosis]\n  diag --> report[Report Fail]\n  pass --> endNode((End))\n  report --> endNode"
+      },
+      "functions": {
+        "ping": {
+          "step1": "echo 600"
+        },
+        "check": {
+          "step1": {
+            "op": "sys.if",
+            "condition": "val > 500"
+          }
+        },
+        "pass": {
+          "step1": "echo '✅ API Latency OK.'"
+        },
+        "diag": {
+          "step1": {
+            "op": "sys.llm",
+            "prompt": "API latency 600ms. Why?"
+          }
+        },
+        "report": {
+          "step1": "echo 'Latency Violation: {nodes.ping.output}ms' > latency_report.md"
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,59 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "demo.smart_reviewer",
+      "name": "Smart Code Reviewer",
+      "version": "3.2.0 stable",
+      "description": "Intelligent code reviewer filtering by file type.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "git",
+        "file_io",
+        "llm"
+      ],
+      "parameters": {
+        "pr_id": {
+          "type": "string",
+          "description": "Pull Request ID to review.",
+          "agentic_prompt": "Identify the PR number or ID from the user's message."
+        }
+      },
+      "summary": "Code reviewer.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop.main",
+      "aisop": {
+        "main": "graph TD\n  start[Get Changes] --> filter{Filter Files}\n  filter -->|py/ts| read[Read Diff]\n  filter -->|docs| skip[Skip]\n  read --> analyze[LLM Analysis]\n  analyze --> report[Save Report]\n  report --> endNode((End))\n  skip --> endNode"
+      },
+      "functions": {
+        "start": {
+          "step1": "git diff --name-only HEAD~1"
+        },
+        "read": {
+          "step1": "git diff HEAD~1"
+        },
+        "analyze": {
+          "step1": {
+            "op": "sys.llm",
+            "prompt": "Review this code..."
+          }
+        },
+        "report": {
+          "step1": "echo '{nodes.analyze.output}' > review.md"
+        },
+        "skip": {
+          "step1": "echo 'Skipping review.'"
+        }
+      }
+    }
+  }
+]

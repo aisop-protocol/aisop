@@ -1,0 +1,57 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "marketing.tweet_gen",
+      "name": "Marketing Tweet Generator",
+      "version": "2.1.0 stable",
+      "description": "Generates viral marketing tweets from product docs.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "file_io",
+        "llm"
+      ],
+      "parameters": {
+        "product_name": {
+          "type": "string",
+          "description": "Name of the product.",
+          "agentic_prompt": "Extract the product name from the user's request."
+        },
+        "key_features": {
+          "type": "array",
+          "description": "List of features to highlight.",
+          "agentic_prompt": "Summarize the key features mentioned in the product docs provided in context."
+        }
+      },
+      "summary": "Generates tweets.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop.main",
+      "aisop": {
+        "main": "graph TD\n  read[Read Info] --> generate[LLM Drafting]\n  generate --> save[Save CSV]\n  save --> endNode((End))"
+      },
+      "functions": {
+        "read": {
+          "step1": "cat product_release.md"
+        },
+        "generate": {
+          "step1": {
+            "op": "sys.llm",
+            "prompt": "Write 3 viral tweets."
+          }
+        },
+        "save": {
+          "step1": "echo 'id,content\n1,{nodes.generate.output}' > tweets.csv"
+        }
+      }
+    }
+  }
+]

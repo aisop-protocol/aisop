@@ -1,0 +1,65 @@
+﻿[
+  {
+    "role": "system",
+    "content": {
+      "protocol": "AISOP V1.0.0",
+      "id": "ops.server_health",
+      "version": "2.1.0 stable",
+      "name": "Server Health Guardian",
+      "description": "Monitors server disk usage and auto-remediates.",
+      "verified_on": [
+        "Cursor",
+        "Gemini CLI"
+      ],
+      "tools": [
+        "shell",
+        "file_io"
+      ],
+      "parameters": {
+        "disk_threshold": {
+          "type": "integer",
+          "description": "Percentage usage to trigger alert.",
+          "default": 90
+        }
+      },
+      "summary": "Checks disk usage.",
+      "system_prompt": "Execute aisop.main"
+    }
+  },
+  {
+    "role": "user",
+    "content": {
+      "instruction": "Execute aisop.main",
+      "aisop": {
+        "main": "graph TD\n  start[Check Disk] --> check{Is Full?}\n  check -->|Yes| remediation\n  check -->|No| healthy[Log Healthy]\n  healthy --> endNode((End))\n  remediation --> endNode",
+        "remediation": "graph TD\n  find[Find Large Files] --> compress[Compress Logs]\n  compress --> alert[Alert Admin]\n  alert --> endNode((End))"
+      },
+      "functions": {
+        "start": {
+          "step1": "echo 92"
+        },
+        "check": {
+          "step1": {
+            "op": "sys.if",
+            "condition": "return int('{nodes.start.output}') > 90"
+          }
+        },
+        "healthy": {
+          "step1": "echo '✅ System healthy.'"
+        },
+        "remediation": {
+          "step1": "aisop['remediation']"
+        },
+        "find": {
+          "step1": "echo '/var/log/syslog.1 (5GB)'"
+        },
+        "compress": {
+          "step1": "echo 'Compressing...'"
+        },
+        "alert": {
+          "step1": "echo '[CRITICAL] High Disk Usage. Compressed large files.' > alert.log"
+        }
+      }
+    }
+  }
+]

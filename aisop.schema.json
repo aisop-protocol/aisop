@@ -1,0 +1,170 @@
+﻿{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "AISOP Protocol v1.0.0",
+    "description": "Schema for AI Standard Operating Protocol (AISOP) documents. Chat-Native Array format.",
+    "definitions": {
+        "metadata": {
+            "type": "object",
+            "required": [
+                "protocol",
+                "id",
+                "version",
+                "summary",
+                "system_prompt"
+            ],
+            "properties": {
+                "protocol": {
+                    "type": "string",
+                    "const": "AISOP V1.0.0",
+                    "description": "AISOP Protocol Version"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+ (stable|test|dev)$",
+                    "description": "Semantic Version + Lifecycle Stage (e.g. '1.0.0 stable')"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Human-readable name of the AISOP."
+                },
+                "summary": {
+                    "type": "string",
+                    "description": "What this AISOP does."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Detailed description of the AISOP's purpose and logic."
+                },
+                "verified_on": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of Agentic Runtimes (e.g. Cursor, Gemini CLI) verifying this AISOP."
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of capabilities required (e.g. shell, python, websearch, file_io)."
+                },
+                "parameters": {
+                    "type": "object",
+                    "description": "Input parameters required by this AISOP (The Interface).",
+                    "patternProperties": {
+                        "^[a-zA-Z0-9_]+$": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "string",
+                                        "integer",
+                                        "number",
+                                        "boolean",
+                                        "array",
+                                        "object"
+                                    ]
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "default": {
+                                    "description": "Default value for this parameter. Type should match the parameter type."
+                                }
+                            },
+                            "patternProperties": {
+                                "^.*_prompt$": {
+                                    "type": "string",
+                                    "description": "Dynamic prompt instruction (e.g. 'agentic_prompt', 'search_prompt')."
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "description"
+                            ]
+                        }
+                    }
+                },
+                "system_prompt": {
+                    "type": "string",
+                    "description": "The required Shim Prompt to run this AISOP."
+                }
+            }
+        },
+        "aisop": {
+            "type": "object",
+            "description": "A collection of Mermaid charts defining logic flows.",
+            "required": [
+                "main"
+            ],
+            "properties": {
+                "main": {
+                    "type": "string",
+                    "description": "The entry-point Mermaid graph. Runtime starts execution here."
+                }
+            },
+            "additionalProperties": {
+                "type": "string",
+                "description": "Mermaid graph definition."
+            }
+        },
+        "functions": {
+            "type": "object",
+            "description": "A registry of executable functions defined as linear step sequences.",
+            "additionalProperties": {
+                "type": "object"
+            }
+        }
+    },
+    "type": "array",
+    "minItems": 2,
+    "maxItems": 2,
+    "items": {
+        "type": "object",
+        "properties": {
+            "role": {
+                "type": "string",
+                "enum": [
+                    "system",
+                    "user"
+                ]
+            },
+            "content": {
+                "oneOf": [
+                    {
+                        "$ref": "#/definitions/metadata"
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "instruction",
+                            "aisop",
+                            "functions"
+                        ],
+                        "properties": {
+                            "instruction": {
+                                "type": "string",
+                                "description": "Human-readable directive for the entry point (e.g. 'Execute aisop.main')."
+                            },
+                            "aisop": {
+                                "$ref": "#/definitions/aisop"
+                            },
+                            "functions": {
+                                "$ref": "#/definitions/functions"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "required": [
+            "role",
+            "content"
+        ]
+    }
+}
